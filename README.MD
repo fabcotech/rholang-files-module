@@ -6,13 +6,13 @@
 # Install dependencies
 $ npm i
 
-# Input values in .env file
+# Rename .env.example to .env, and edit url/ports values
 
 # Initiate module (will issue blockchain transaction)
 $ node deploy_file_module.js --private-key aaa
 
 # Add a file (will issue blockchain transaction)
-$ node add_file --file ./README.MD --private-key aaa --registry-uri bbb
+$ node add_file --file ./README.MD --mime-type text/markdown --private-key aaa --registry-uri bbb
 ```
 
 File module to manage files on the blockchain. Basically it can be anything other than files, the contract creates a map on chain, this map has write access provided to only one identity (private key).
@@ -28,7 +28,7 @@ registry_uri.file_id_or_name
 
 #### Files on chain
 
-Files are represented as a gzipped ans base64 string of the following object (see add_file.js:112)
+Files are represented as a gzipped and base64 string of the following object (see add_file.js:112)
 
 ```
 {
