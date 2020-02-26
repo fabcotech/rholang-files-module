@@ -1,0 +1,19 @@
+new entryCh, lookup(`rho:registry:lookup`), stdout(`rho:io:stdout`) in {
+
+  lookup!(`rho:id:REGISTRY_URI`, *entryCh) |
+
+  for(entry <- entryCh) {
+    entry!(
+      {
+        "type": "ADD",
+        "payload": {
+          "id": "FILE_ID",
+          "file": "FILE_BASE64",
+          "nonce": "NONCE",
+          "signature": "SIGNATURE"
+        }
+      },
+      *stdout
+    )
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "dapp-blog",
+  "version": "1.0.1",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "webpack --mode development --watch",
+    "build": "webpack --mode production",
+    "dappy:init": "node ./node_modules/dappy-cli/lib/ init",
+    "dappy:build": "node ./node_modules/dappy-cli/lib/ build",
+    "dappy:push": "node ./node_modules/dappy-cli/lib/ push",
+    "dappy:update": "node ./node_modules/dappy-cli/lib/ update",
+    "dappy:watch": "node ./node_modules/dappy-cli/lib/ update --watch"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {},
+  "dependencies": {
+    "@grpc/grpc-js": "^0.6.9",
+    "@grpc/proto-loader": "^0.5.2",
+    "@popperjs/core": "^2.0.6",
+    "blakejs": "^1.1.0",
+    "elliptic": "^6.5.0",
+    "dotenv": "^8.2.0",
+    "rchain-toolkit": "0.2.2",
+    "react": "16.8.5",
+    "react-dom": "16.8.5",
+    "react-redux": "6.0.1",
+    "redux": "4.0.1",
+    "uuid": "3.4.0",
+    "uuidv4": "^6.0.2"
+  }
+}
