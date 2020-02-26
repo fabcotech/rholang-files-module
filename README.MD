@@ -1,6 +1,10 @@
 ## Rholang files module
 
+File module to manage files on the blockchain. Basically it can be anything other than files, the contract creates a map on chain, this map has write access provided to only one identity (private key).
+
 ![Mountains with fog](https://images.pexels.com/photos/167699/pexels-photo-167699.jpeg?auto=compress&cs=tinysrgb&dpr=0.5&h=750&w=1260)
+
+### Setup and file upload
 
 ```
 # Install dependencies
@@ -15,9 +19,11 @@ $ node deploy_file_module.js --private-key aaa
 $ node add_file --file ./README.MD --mime-type text/markdown --private-key aaa --registry-uri bbb
 ```
 
-**Node**: If you do not provide the paramter `--file-id` it will be set with the default value `index`. You can set it to `RANDOM` (`--file-id RANDOM`) to have a random value generated (8 characters).
+**Node (add file script)**: If you do not provide the paramter `--file-id` it will be set with the default value `index`. You can set it to `RANDOM` (`--file-id RANDOM`) to have a random value generated (8 characters).
 
-File module to manage files on the blockchain. Basically it can be anything other than files, the contract creates a map on chain, this map has write access provided to only one identity (private key).
+### General structure and addresses
+
+#### Addresses
 
 The address system for such a system is based first on the registry URI, and then on an arbitrary file id/name. Some address examples :
 
@@ -28,7 +34,7 @@ registry_uri.file_id_or_name
 3gsz44jg3dowfqoq8y5ap33u891yrw7bjdmrtnnhnrhzitwcfa4a9o.monster
 3gsz44jg3dowfqoq8y5ap33u891yrw7bjdmrtnnhnrhzitwcfa4a9o.important_document
 
-#### Files on chain
+#### File representation on chain
 
 Files are represented as a gzipped and base64 string of the following object (see add_file.js:112)
 
