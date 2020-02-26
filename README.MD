@@ -15,6 +15,8 @@ $ node deploy_file_module.js --private-key aaa
 $ node add_file --file ./README.MD --mime-type text/markdown --private-key aaa --registry-uri bbb
 ```
 
+**Node**: If you do not provide the paramter `--file-id` it will be set with the default value `index`. You can set it to `RANDOM` (`--file-id RANDOM`) to have a random value generated (8 characters).
+
 File module to manage files on the blockchain. Basically it can be anything other than files, the contract creates a map on chain, this map has write access provided to only one identity (private key).
 
 The address system for such a system is based first on the registry URI, and then on an arbitrary file id/name. Some address examples :

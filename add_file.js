@@ -33,8 +33,14 @@ const pushFile = async () => {
 
   let fileId = getProcessArgv("--file-id");
   if (!fileId) {
-    fileId = uuidv4().replace(/-/g, "");
-    log("--file-id parameter not provided, generated id : " + fileId);
+    log('--file-id parameter not provided, will try default value "index"');
+    fileId = "index";
+  }
+  if (fileId === "RANDOM") {
+    fileId = uuidv4()
+      .replace(/-/g, "")
+      .substr(0, 8);
+    log("--file-id randomly generated : " + fileId);
   }
 
   let phloLimit = getProcessArgv("--phlo-limit");
