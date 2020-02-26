@@ -1,6 +1,6 @@
 ## Rholang files module
 
-File module to manage files on the blockchain. Basically it can be anything other than files, the contract creates a map on chain, this map has write access provided to only one identity (private key).
+Files module to manage files on the blockchain. Basically it can be anything other than files, the contract creates a map on chain, this map has write access provided to only one identity (private key).
 
 ![Mountains with fog](https://images.pexels.com/photos/167699/pexels-photo-167699.jpeg?auto=compress&cs=tinysrgb&dpr=0.5&h=750&w=1260)
 
@@ -49,7 +49,7 @@ Files are represented as a gzipped and base64 string of the following object (se
 
 #### Files module
 
-The file module in rholang has the following structure :
+The files module in rholang has the following structure :
 
 ```
 {
@@ -66,4 +66,9 @@ The file module in rholang has the following structure :
 }
 ```
 
-The nonce is changed each time there is an operation on the file module. A signature provided in the payload is checked each time an operation on the file module is done (add/update).
+The nonce is changed each time there is an operation on the files module. A signature provided in the payload is checked each time an operation on the files module is done (add/update).
+
+**TODO :**
+
+- Check the signature against the entire payload instead of the hash of the nonce
+- Add update file capability

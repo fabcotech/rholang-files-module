@@ -6,8 +6,8 @@ require("dotenv").config();
 const { getProcessArgv, log } = require("./utils");
 
 const ajv = new Ajv();
-const schema = {
-  schemaId: "dpy-or-file-ast-rholang",
+const ASTSchema = {
+  schemaId: "string-ast-rholang",
   type: "object",
   properties: {
     expr: {
@@ -41,8 +41,30 @@ const schema = {
   required: ["expr", "block"]
 };
 
+const fileSchema = {
+  schemaId: "file",
+  type: "object",
+  properties: {
+    mimeType: {
+      type: "string"
+    },
+    name: {
+      type: "string"
+    },
+    data: {
+      type: "string"
+    },
+    signature: {
+      type: "string"
+    }
+  },
+  required: ["signature", "data", "mimeType", "name"]
+};
+
 ajv.addMetaSchema(require("ajv/lib/refs/json-schema-draft-06.json"));
-const validate = ajv.compile(schema);
+const validateFile = ajv.compile(fileSchema);
+
+const validateAST = ajv.compile(ASTSchema);
 
 const main = async () => {
   const fileAddress = getProcessArgv("--file-address");
@@ -80,6 +102,14 @@ new return, filesModuleCh, lookup(\`rho:registry:lookup\`), stdout(\`rho:io:stdo
       } catch (err) {
         log("failed to JSON.parse response, raw value :", "warning");
         console.log(response);
+        process.exit();
+      }
+
+      const validAST = validateAST(parsedResponse);
+      if (!validAST) {
+        log("failed to validate AST, JSON value :", "warning");
+        console.log(parsedResponse);
+        process.exit();
       }
 
       let buff;
@@ -91,15 +121,17 @@ new return, filesModuleCh, lookup(\`rho:registry:lookup\`), stdout(\`rho:io:stdo
           "warning"
         );
         console.log(response);
+        process.exit();
       }
 
       const unzippedBuffer = zlib.gunzipSync(buff);
       file = unzippedBuffer.toString("utf-8");
 
-      const valid = validate(parsedResponse.data);
-      if (!valid) {
+      const validFile = validateFile(parsedResponse.data);
+      if (!validFile) {
         log("failed to validate file, JSON value :", "warning");
         console.log(file);
+        process.exit();
       }
     });
 };
