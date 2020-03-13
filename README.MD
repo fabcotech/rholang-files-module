@@ -53,14 +53,14 @@ The files module in rholang has the following structure :
 
 ```
 {
-  "entryRegistryUri": "uri_for_add_or_update",
-  "filesRegistryUri": "uri_for_read",
+  "entryRegistryUri": registry URI for updating or adding file (string),
+  "filesRegistryUri": registry URI for reading data (string),
   "publicKey": "bbbababacda454545349090990",
   "nonce": "abcdff45f45f45aaaa56cdaaa",
   "files": {
-    "0001" : Unforgeable(0x995464b16b0fdfffc1e5c10684aedd57e4ecf7b49473059c50f17624e5b25776),
-    "0002" : Unforgeable(0x4a60ee07be7b0eb2c8af7f47ed5a8176b5f99ba00f9700725c5331a8b10705ae),
-    "monster" : Unforgeable(0x03d61e567d30e369167ab1a432b3a4fc02aec730f739fa0143ef70ba4d2d80ac)
+    "0001" : registry URI (string),
+    "0002" : registry URI (string),
+    "monster" : registry URI (string),
   },
   "version": "0.1"
 }

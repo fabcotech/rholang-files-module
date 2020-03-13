@@ -1,5 +1,6 @@
 new 
   filesModuleCh,
+  filesModuleReaderCh,
   filesUriCh,
   addCh,
   entryCh,
@@ -15,11 +16,11 @@ in {
 
 
   // add a file
-  contract addCh(payload, return) = {
+  contract addCh(payload, overrideIfExists, return) = {
     stdout!("addCh") |
     for (current <- filesModuleCh) {
       stdout!(*current) |
-      match *current.get("files").contains(*payload.get("id")) {
+      match *current.get("files").contains(*payload.get("id")) and (not *overrideIfExists) {
         true => {
           return!("error: file id " ++ *payload.get("id") ++ " already exists") |
           filesModuleCh!(*current)
@@ -39,25 +40,27 @@ in {
               for (@result <- verifySignatureCh) {
                 match result {
                   true => {
-                    new x in {
-                      x!(*payload.get("file")) |
-                      filesModuleCh!(
-                        *current
-                          .set(
-                            "files",
-                            *current
-                              .get("files")
-                              .set(
-                                *payload.get("id"),
-                                *x
-                              )
-                          )
-                          .set(
-                            "nonce",
-                            *payload.get("nonce")
-                          )
-                      ) |
-                      return!("success: file " ++ *payload.get("id") ++ " added")
+                    new uriCh in {
+                      insertArbitrary!(*payload.get("file"), *uriCh) |
+                      for (uri <- uriCh) {
+                        filesModuleCh!(
+                          *current
+                            .set(
+                              "files",
+                              *current
+                                .get("files")
+                                .set(
+                                  *payload.get("id"),
+                                  *uri
+                                )
+                            )
+                            .set(
+                              "nonce",
+                              *payload.get("nonce")
+                            )
+                        ) |
+                        return!("success: file " ++ *payload.get("id") ++ " added")
+                      }
                     }
                   }
                   false => {
@@ -75,13 +78,22 @@ in {
   contract entryCh(action, return) = {
     match *action.get("type") {
       "ADD" => {
-        addCh!(*action.get("payload"), *return)
+        addCh!(*action.get("payload"), false, *return)
+      }
+      "ADD_OR_UPDATE" => {
+        addCh!(*action.get("payload"), true, *return)
       }
     }
   } |
 
   insertArbitrary!(*entryCh, *entryUriCh) |
-  insertArbitrary!(*filesModuleCh, *filesUriCh) |
+  insertArbitrary!(*filesModuleReaderCh, *filesUriCh) |
+
+  for (ch <= filesModuleReaderCh) {
+    for (current <<- filesModuleCh) {
+      ch!(*current)
+    }
+  } |
 
   for (entryUri <- entryUriCh; filesUri <- filesUriCh) {
     filesModuleCh!({
@@ -90,7 +102,7 @@ in {
       "publicKey": "PUBLIC_KEY",
       "nonce": "NONCE",
       "files": {},
-      "version": "0.1"
+      "version": "0.3"
     }) |
     stdout!({
       "entryRegistryUri": *entryUri,
@@ -98,7 +110,7 @@ in {
       "publicKey": "PUBLIC_KEY",
       "nonce": "NONCE",
       "files": {},
-      "version": "0.1"
+      "version": "0.3"
     })
   }
 }

@@ -1,0 +1,18 @@
+new filesModuleCh, readCh, lookup(`rho:registry:lookup`), stdout(`rho:io:stdout`) in {
+
+  lookup!(`rho:id:REGISTRY_URI`, *filesModuleCh) |
+
+  for(filesModuleReader <- filesModuleCh) {
+    new x in {
+      filesModuleReader!(*x) |
+      for (y <- x) {
+        new z in {
+          lookup!(*y.get("files").get("index"), *z) |
+          for (value <- z) {
+            stdout!(*value)
+          }
+        }
+      }
+    }
+  }
+}

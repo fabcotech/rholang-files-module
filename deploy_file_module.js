@@ -41,11 +41,20 @@ const main = async () => {
   const httpUrlValidator = `${process.env.VALIDATOR_HOST}:${process.env.VALIDATOR_HOST_HTTP_PORT}`;
   const grpcUrlValidator = `${process.env.VALIDATOR_HOST}:${process.env.VALIDATOR_HOST_GRPC_PROPOSE_PORT}`;
 
-  const grpcProposeClient = await rchainToolkit.grpc.getGrpcProposeClient(
-    grpcUrlValidator,
-    grpc,
-    protoLoader
-  );
+  let grpcProposeClient;
+  try {
+    grpcProposeClient = await rchainToolkit.grpc.getGrpcProposeClient(
+      grpcUrlValidator,
+      grpc,
+      protoLoader
+    );
+  } catch (err) {
+    log(
+      "GRPC propose client could not be setup add address " + grpcUrlValidator,
+      "warning"
+    );
+    grpcProposeClient = undefined;
+  }
 
   let prepareDeployResponse;
   try {
