@@ -11,6 +11,7 @@ Files module to manage files on the blockchain. Basically it can be anything oth
 $ npm i
 
 # Rename .env.example to .env, and edit url/ports values
+# The default values are valid values for deploying to, and reading from the testnet
 
 # Initiate module (will issue blockchain transaction)
 $ node deploy_file_module.js --private-key aaa
