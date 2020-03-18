@@ -17,6 +17,9 @@ $ node deploy_file_module.js --private-key aaa
 
 # Add a file (will issue blockchain transaction)
 $ node add_file --file ./README.MD --mime-type text/markdown --private-key aaa --registry-uri bbb
+
+# Read a file (free)
+$ node read_file --file-address bbb.index
 ```
 
 **Node (add file script)**: If you do not provide the paramter `--file-id` it will be set with the default value `index`. You can set it to `RANDOM` (`--file-id RANDOM`) to have a random value generated (8 characters).
@@ -53,8 +56,7 @@ The files module in rholang has the following structure :
 
 ```
 {
-  "entryRegistryUri": registry URI for updating or adding file (string),
-  "filesRegistryUri": registry URI for reading data (string),
+  "registryUri": registry URI for reading, updating or adding files,
   "publicKey": "bbbababacda454545349090990",
   "nonce": "abcdff45f45f45aaaa56cdaaa",
   "files": {
@@ -62,11 +64,13 @@ The files module in rholang has the following structure :
     "0002" : registry URI (string),
     "monster" : registry URI (string),
   },
-  "version": "0.1"
+  "version": "0.4"
 }
 ```
 
 The nonce is changed each time there is an operation on the files module. A signature provided in the payload is checked each time an operation on the files module is done (add/update).
+
+Each file can be retreived through a channel exposed to the registry.
 
 **TODO :**
 

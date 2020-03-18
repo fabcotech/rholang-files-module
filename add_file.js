@@ -96,6 +96,27 @@ const pushFile = async () => {
     );
   }
 
+  const ed = await rchainToolkit.http.exploreDeploy(httpUrlReadOnly, {
+    term: `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
+      lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+      for(entry <- entryCh) {
+        new x in {
+          entry!({ "type": "READ" }, *x) |
+          for (y <- x) {
+            return!(*y)
+          }
+        }
+      }
+    }`
+  });
+
+  if (!JSON.parse(ed).expr[0]) {
+    log("Files module not found on chain", "error");
+    process.exit();
+  }
+  const nonce = rchainToolkit.utils.rhoValToJs(JSON.parse(ed).expr[0]).nonce;
+  log("Current nonce value is " + nonce);
+
   const pathSplitted = filePath.split(".");
   const extension = pathSplitted[pathSplitted.length - 1];
   if (!mimeType) {
@@ -123,11 +144,21 @@ const pushFile = async () => {
   const pushFileOnChain = async () => {
     const timestamp = new Date().valueOf();
 
-    const grpcProposeClient = await rchainToolkit.grpc.getGrpcProposeClient(
-      grpcUrlValidator,
-      grpc,
-      protoLoader
-    );
+    let grpcProposeClient;
+    try {
+      grpcProposeClient = await rchainToolkit.grpc.getGrpcProposeClient(
+        grpcUrlValidator,
+        grpc,
+        protoLoader
+      );
+    } catch (err) {
+      log(
+        "GRPC propose client could not be setup add address " +
+          grpcUrlValidator,
+        "warning"
+      );
+      grpcProposeClient = undefined;
+    }
 
     let validAfterBlockNumber;
     try {
@@ -142,12 +173,11 @@ const pushFile = async () => {
       process.exit();
     }
 
-    const nonce = "4219908afd2a4b739f44f3dfd3f278c8"; // uuidv4().replace(/-/g, "");
     const term = addFile
       .replace("FILE_BASE64", fileGZipped)
       .replace("FILE_ID", fileId)
       .replace("REGISTRY_URI", registryUri)
-      .replace("NONCE", nonce)
+      .replace("NONCE", uuidv4().replace(/-/g, ""))
       .replace("SIGNATURE", createNonceSignature(nonce, privateKey));
 
     const phloPrice = 1;
@@ -174,6 +204,9 @@ const pushFile = async () => {
 
     try {
       await new Promise((resolve, reject) => {
+        if (!grpcProposeClient) {
+          reject();
+        }
         let over = false;
         setTimeout(() => {
           if (!over) {
@@ -192,10 +225,9 @@ const pushFile = async () => {
       });
     } catch (err) {
       log("Unable to propose, skip propose", "warning");
-      console.log(err);
     }
 
-    log(`Deploy and propose successful !`);
+    log(`Deploy and (and maybe propose) successful !`);
     log(`File address ${registryUri}.${fileId}`);
     process.exit();
   };

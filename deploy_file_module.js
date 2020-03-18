@@ -131,6 +131,9 @@ const main = async () => {
           );
         }
       }, 8000);
+      if (!grpcProposeClient) {
+        throw new Error("Propose client not available");
+      }
       rchainToolkit.grpc.propose({}, grpcProposeClient).then(a => {
         if (!over) {
           over = true;
@@ -140,7 +143,9 @@ const main = async () => {
     });
   } catch (err) {
     log("Unable to propose, skip propose", "warning");
-    console.log(err);
+    if (err.message !== "Propose client not available") {
+      console.log(err);
+    }
   }
 
   let checkingDataOnChain = false;
@@ -181,44 +186,20 @@ const main = async () => {
     const jsObject = rchainToolkit.utils.rhoValToJs(
       parsedResponse.exprs[0].expr
     );
-
+    console.log(jsObject);
     log("Files module deployed successfully !");
     log("");
-    log(
-      `Registry URI (main)         ${jsObject.filesRegistryUri.replace(
-        "rho:id:",
-        ""
-      )}`
-    );
-    log(
-      `Registry URI (add/update)   ${jsObject.entryRegistryUri.replace(
-        "rho:id:",
-        ""
-      )}`
-    );
-    log(`Nonce                       ${nonce}`);
+    log(`Registry URI         ${jsObject.registryUri.replace("rho:id:", "")}`);
+    log(`Nonce                ${nonce}`);
     log("");
     log(`Now you can use the add_file.js script to add files`);
     log(
-      `Example: node add_file --file ./monster.jpg --private-key aaa --registry-uri ${jsObject.entryRegistryUri.replace(
+      `Example: node add_file --file ./monster.jpg --private-key aaa --registry-uri ${jsObject.registryUri.replace(
         "rho:id:",
         ""
       )}`
     );
     process.exit();
-
-    /*       rchainToolkit.http
-      .exploreDeploy(httpUrlReadOnly, {
-        term: `
-new return, filesModuleCh, lookup(\`rho:registry:lookup\`), stdout(\`rho:io:stdout\`) in {
-  return!(42)
-}`
-      })
-      .then(a => {
-        console.log("ok !");
-        console.log(a);
-        process.exit();
-      }); */
   };
 
   setInterval(checkDataOnChain, 15000);

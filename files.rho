@@ -1,7 +1,5 @@
 new 
   filesModuleCh,
-  filesModuleReaderCh,
-  filesUriCh,
   addCh,
   entryCh,
   entryUriCh,
@@ -77,40 +75,39 @@ in {
 
   contract entryCh(action, return) = {
     match *action.get("type") {
+      "READ" => {
+        for (current <<- filesModuleCh) {
+          return!(*current)
+        }
+      }
       "ADD" => {
         addCh!(*action.get("payload"), false, *return)
       }
       "ADD_OR_UPDATE" => {
         addCh!(*action.get("payload"), true, *return)
       }
+      _ => {
+        return!("error: unknown action")
+      }
     }
   } |
 
   insertArbitrary!(*entryCh, *entryUriCh) |
-  insertArbitrary!(*filesModuleReaderCh, *filesUriCh) |
 
-  for (ch <= filesModuleReaderCh) {
-    for (current <<- filesModuleCh) {
-      ch!(*current)
-    }
-  } |
-
-  for (entryUri <- entryUriCh; filesUri <- filesUriCh) {
+  for (entryUri <- entryUriCh) {
     filesModuleCh!({
-      "entryRegistryUri": *entryUri,
-      "filesRegistryUri": *filesUri,
+      "registryUri": *entryUri,
       "publicKey": "PUBLIC_KEY",
       "nonce": "NONCE",
       "files": {},
-      "version": "0.3"
+      "version": "0.4"
     }) |
     stdout!({
-      "entryRegistryUri": *entryUri,
-      "filesRegistryUri": *filesUri,
+      "registryUri": *entryUri,
       "publicKey": "PUBLIC_KEY",
       "nonce": "NONCE",
       "files": {},
-      "version": "0.3"
+      "version": "0.4"
     })
   }
 }

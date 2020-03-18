@@ -1,5 +1,6 @@
 const rchainToolkit = require("rchain-toolkit");
 const zlib = require("zlib");
+const fs = require("fs");
 const Ajv = require("ajv");
 require("dotenv").config();
 
@@ -10,35 +11,17 @@ const ASTSchema = {
   schemaId: "string-ast-rholang",
   type: "object",
   properties: {
-    expr: {
+    ExprString: {
       type: "object",
       properties: {
-        ExprString: {
-          type: "object",
-          properties: {
-            data: {
-              type: "string"
-            }
-          },
-          require: ["data"]
+        data: {
+          type: "string"
         }
       },
-      required: ["ExprString"]
-    },
-    block: {
-      type: "object",
-      properties: {
-        seqNum: {
-          type: "number"
-        },
-        timestamp: {
-          type: "number"
-        }
-      },
-      required: ["seqNum", "timestamp"]
+      required: ["data"]
     }
   },
-  required: ["expr", "block"]
+  required: ["ExprString"]
 };
 
 const fileSchema = {
@@ -77,23 +60,33 @@ const main = async () => {
   log("host (read-only):           " + process.env.READ_ONLY_HOST);
   log("host (read-only) HTTP port: " + process.env.READ_ONLY_HOST_HTTP_PORT);
 
-  log("Deploying ...");
+  log("Explore deploy ...");
 
   const httpUrlReadOnly = `${process.env.READ_ONLY_HOST}:${process.env.READ_ONLY_HOST_HTTP_PORT}`;
 
   rchainToolkit.http
     .exploreDeploy(httpUrlReadOnly, {
       term: `
-new return, filesModuleCh, lookup(\`rho:registry:lookup\`), stdout(\`rho:io:stdout\`) in {
+        new return, entryCh, lookup(\`rho:registry:lookup\`), stdout(\`rho:io:stdout\`) in {
 
-  lookup!(\`rho:id:${fileAddress.split(".")[0]}\`, *filesModuleCh) |
+          lookup!(\`rho:id:${fileAddress.split(".")[0]}\`, *entryCh) |
 
-  for(filesModule <- filesModuleCh) {
-      for (x <- *filesModule.get("files").get("${fileAddress.split(".")[1]}")) {
-        return!(*x)
-      }
-  }
-}`
+          for(entry <- entryCh) {
+            new x in {
+              entry!({ "type": "READ" }, *x) |
+              for (y <- x) {
+                new z in {
+                  lookup!(*y.get("files").get("${
+                    fileAddress.split(".")[1]
+                  }"), *z) |
+                  for (value <- z) {
+                    return!(*value)
+                  }
+                }
+              }
+            }
+          }
+        }`
     })
     .then(response => {
       let parsedResponse;
@@ -105,16 +98,16 @@ new return, filesModuleCh, lookup(\`rho:registry:lookup\`), stdout(\`rho:io:stdo
         process.exit();
       }
 
-      const validAST = validateAST(parsedResponse);
+      const validAST = validateAST(parsedResponse.expr[0]);
       if (!validAST) {
         log("failed to validate AST, JSON value :", "warning");
-        console.log(parsedResponse);
+        console.log(parsedResponse.expr[0]);
         process.exit();
       }
 
       let buff;
       try {
-        buff = Buffer.from(parsedResponse.data.expr.ExprString.data, "base64");
+        buff = Buffer.from(parsedResponse.expr[0].ExprString.data, "base64");
       } catch (err) {
         log(
           "failed to retreive string from AST (.data.expr.ExprString.data), raw value :",
@@ -126,13 +119,20 @@ new return, filesModuleCh, lookup(\`rho:registry:lookup\`), stdout(\`rho:io:stdo
 
       const unzippedBuffer = zlib.gunzipSync(buff);
       file = unzippedBuffer.toString("utf-8");
-
-      const validFile = validateFile(parsedResponse.data);
+      const fileAsJson = JSON.parse(file);
+      const validFile = validateFile(fileAsJson);
       if (!validFile) {
         log("failed to validate file, JSON value :", "warning");
         console.log(file);
         process.exit();
       }
+      const t = new Date().getTime();
+      log("Found file " + fileAsJson.name + ", " + fileAsJson.mimeType);
+      fs.writeFileSync(
+        `./${t}-${fileAsJson.name}`,
+        Buffer.from(fileAsJson.data, "base64")
+      );
+      log("Wrote it to the file system at " + `./${t}-${fileAsJson.name}`);
     });
 };
 

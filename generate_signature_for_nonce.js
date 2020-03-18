@@ -10,13 +10,12 @@ const { blake2b } = require("blakejs");
   PRIVATE_KEY: string;
   Private key that corresponds to the public key of the record you wish to update
 */
-const PRIVATE_KEY =
-  "ea9833452278515ecebffbbebb9b6ffc926caf68af06d7963795a409783b9167";
+const PRIVATE_KEY = "PRIVATE_KEY";
 /*
   NONCE: string;
   Nonce of the record you wish to update
 */
-const NONCE = "c211286f65fa4d20ab9583bb4fe1c407";
+const NONCE = "NONCE";
 
 const bufferToSign = Buffer.from(NONCE, "utf8");
 const uInt8Array = new Uint8Array(bufferToSign);
