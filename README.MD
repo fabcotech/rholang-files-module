@@ -1,7 +1,5 @@
 ## Rholang files module
 
-**Not up to date for Dappy 0.2.8, will be updated soon**
-
 Files module to manage files on the blockchain. Basically it can be anything other than files, the contract creates a map on chain, this map has write access provided to only one identity (private key).
 
 ![Mountains with fog](https://images.pexels.com/photos/167699/pexels-photo-167699.jpeg?auto=compress&cs=tinysrgb&dpr=0.5&h=750&w=1260)
