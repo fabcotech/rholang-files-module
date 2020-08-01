@@ -13,7 +13,7 @@
     "ajv": "^6.10.2",
     "blakejs": "^1.1.0",
     "dotenv": "^8.2.0",
-    "elliptic": "^6.5.0",
+    "elliptic": "^6.5.3",
     "rchain-toolkit": "0.2.3",
     "uuid": "3.4.0",
     "uuidv4": "^6.0.2",
