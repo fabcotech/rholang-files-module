@@ -10,7 +10,7 @@
   "dependencies": {
     "@grpc/grpc-js": "^0.6.9",
     "@grpc/proto-loader": "^0.5.2",
-    "ajv": "^6.10.2",
+    "ajv": "^6.12.3",
     "blakejs": "^1.1.0",
     "dotenv": "^8.2.0",
     "elliptic": "^6.5.3",
